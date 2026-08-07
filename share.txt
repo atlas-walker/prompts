@@ -1,0 +1,11 @@
+Execution Modes
+
+Before walking through the flow in detail, it's important to understand that the Craft Execution Orchestrator can run a set of test cases in two different ways. The mode is chosen at request time and determines how the temporary feature files are generated and how many Jenkins builds are triggered.
+
+Sequential execution consolidates every requested case ID into a single temporary feature file, which is dispatched to Jenkins as one build. The scenarios run one after another inside the same workspace, sharing the same configuration.properties and the same execution context. This is the right choice when execution order matters, when cases depend on shared state, or when you want to keep the load on the Jenkins agents predictable.
+
+Parallel execution generates one temporary feature file per case ID and triggers an independent Jenkins build for each one. Every case runs in its own workspace, fully isolated from the others, so total wall-clock time is bounded by the slowest case rather than the sum of all of them. This is the preferred mode for large suites of independent cases.
+
+Both modes share the same upstream pipeline — repository resolution, branch validation, cache update, scenario extraction, and configuration generation. They diverge only at the feature-file generation and dispatch step, and they converge again when the Craft library reports status transitions back to the orchestrator.
+
+The walkthrough below lets you follow a single request from end to end. Pick an execution mode, step through the pipeline, and watch each payload move between the orchestrator, the repository cache, Jenkins, and the Craft library — one stage at a time, at your own pace.
